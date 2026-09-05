@@ -1,0 +1,41 @@
+spring:
+  application:
+    name: ${SPRING_APPLICATION_NAME:sapphire-user-service}
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/sapphire}
+    username: ${DB_USERNAME:admin}
+    password: ${DB_PASSWORD:admin123}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+server:
+  port: ${SERVER_PORT:8091}
+
+partner:
+  service:
+    base-url: ${PARTNER_SERVICE_BASE_URL:http://localhost:8085/sapphire-wellness-partner-service}
+
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:*}
+
+management:
+  tracing:
+    enabled: ${OTEL_TRACING_ENABLED:true}
+  otlp:
+    metrics:
+      export:
+        url: ${OTEL_METRICS_EXPORT_URL:http://localhost:4318/v1/metrics}
+
+otel:
+  exporter:
+    otlp:
+      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4317}
+  resource:
+    attributes: "service.name=${OTEL_SERVICE_NAME:user-service}"

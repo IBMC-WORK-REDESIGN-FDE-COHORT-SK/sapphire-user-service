@@ -1,0 +1,18 @@
+<configuration scan="true">
+    <!-- Asynchronous JSON Appender -->
+    <appender name="ASYNC_JSON" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="JSON" />
+    </appender>
+
+    <!-- Actual JSON encoder appender -->
+    <appender name="JSON" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <includeContext>true</includeContext>
+        </encoder>
+    </appender>
+
+    <!-- Root logger -->
+    <root level="INFO">
+        <appender-ref ref="ASYNC_JSON" />
+    </root>
+</configuration>
