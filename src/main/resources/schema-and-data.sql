@@ -278,3 +278,46 @@ SELECT id,
        NOW(),
        NOW()
 FROM users WHERE email = 'margaret.thompson@sapphirewellness.com';
+
+-- ===============================================
+-- ADF-9: PROMOTIONS TABLE
+-- ===============================================
+
+CREATE TABLE IF NOT EXISTS promotions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    title VARCHAR(80) NOT NULL,
+    badge_label VARCHAR(20),
+    body_text TEXT,
+    cta_label VARCHAR(30) NOT NULL,
+    cta_url VARCHAR(2048) NOT NULL,
+    background_colour CHAR(7) NOT NULL DEFAULT '#FFFFFF',
+    text_colour CHAR(7) NOT NULL DEFAULT '#000000',
+    target_tier VARCHAR(20) NOT NULL DEFAULT 'FREE',
+    starts_at TIMESTAMPTZ NOT NULL,
+    expires_at TIMESTAMPTZ NOT NULL,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    impression_count BIGINT NOT NULL DEFAULT 0,
+    click_count BIGINT NOT NULL DEFAULT 0,
+    dismiss_count BIGINT NOT NULL DEFAULT 0,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    CONSTRAINT chk_promotion_window CHECK (expires_at > starts_at)
+);
+
+-- Only one active promotion per tier at a time
+CREATE UNIQUE INDEX IF NOT EXISTS uidx_promotions_active_tier
+    ON promotions (target_tier)
+    WHERE is_active = TRUE;
+
+CREATE OR REPLACE FUNCTION update_promotions_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_update_promotions_updated_at
+BEFORE UPDATE ON promotions
+FOR EACH ROW
+EXECUTE FUNCTION update_promotions_updated_at();
